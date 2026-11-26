@@ -59,10 +59,10 @@ abstract final class AppTheme {
           color: scheme.onSurface,
         ),
       ),
-      segmentedButtonTheme: SegmentedButtonThemeData(
+      segmentedButtonTheme: const SegmentedButtonThemeData(
         style: ButtonStyle(
-          minimumSize: const WidgetStatePropertyAll(Size(48, 52)),
-          textStyle: const WidgetStatePropertyAll(
+          minimumSize: WidgetStatePropertyAll(Size(48, 52)),
+          textStyle: WidgetStatePropertyAll(
             TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
           ),
         ),
