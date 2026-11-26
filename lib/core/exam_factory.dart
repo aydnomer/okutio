@@ -1,5 +1,7 @@
 import 'package:uuid/uuid.dart';
 
+import 'util/format.dart';
+
 import 'models/booklet.dart';
 import 'models/exam.dart';
 import 'models/question.dart';
@@ -53,15 +55,15 @@ class ExamDraft {
   /// Açık uçlu puanlar toplam puanı aşıyorsa uyarı metni, yoksa `null`.
   String? get pointsProblem {
     if (openTotal > rules.totalPoints) {
-      return 'Açık uçlu soruların toplamı (${_fmt(openTotal)}) '
-          'sınavın tam puanını (${_fmt(rules.totalPoints)}) aşıyor.';
+      return 'Açık uçlu soruların toplamı (${fmtNum(openTotal)}) '
+          'sınavın tam puanını (${fmtNum(rules.totalPoints)}) aşıyor.';
     }
     if (choiceCount == 0 && openCount == 0) {
       return 'Sınavda en az bir soru olmalı.';
     }
     if (choiceCount == 0 && openTotal != rules.totalPoints) {
-      return 'Açık uçlu soruların toplamı ${_fmt(openTotal)}; '
-          '${_fmt(rules.totalPoints)} olmalı.';
+      return 'Açık uçlu soruların toplamı ${fmtNum(openTotal)}; '
+          '${fmtNum(rules.totalPoints)} olmalı.';
     }
     return null;
   }
@@ -102,9 +104,6 @@ class ExamDraft {
     return exam;
   }
 }
-
-String _fmt(double v) =>
-    v == v.roundToDouble() ? v.toInt().toString() : v.toStringAsFixed(1);
 
 /// Öğretmenin hiçbir şey girmeden uygulamayı deneyebilmesi için hazır örnek sınav.
 Exam buildSampleExam({DateTime? now}) {

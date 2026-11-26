@@ -51,7 +51,21 @@ abstract final class AppTheme {
         centerTitle: false,
         backgroundColor: scheme.surface,
         surfaceTintColor: Colors.transparent,
-        titleTextStyle: text.titleLarge?.copyWith(color: scheme.onSurface),
+        // Taban tema yazı boyutu taşımadığı için boyut burada açıkça verilir.
+        titleTextStyle: TextStyle(
+          fontFamily: 'Roboto',
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
+          color: scheme.onSurface,
+        ),
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          minimumSize: const WidgetStatePropertyAll(Size(48, 52)),
+          textStyle: const WidgetStatePropertyAll(
+            TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+          ),
+        ),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(

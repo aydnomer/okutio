@@ -17,6 +17,7 @@ class PageFrame extends StatelessWidget {
   Widget build(BuildContext context) {
     return Align(
       alignment: Alignment.topCenter,
+      heightFactor: 1,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: AppTheme.maxContentWidth),
         child: Padding(padding: padding, child: child),
