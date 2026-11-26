@@ -45,6 +45,9 @@ dependencies:
   shared_preferences: ^2.5.6
   flutter_localizations:
     sdk: flutter
+  image: ^4.13.1
+  zxing2: ^0.2.4
+  image_picker: ^1.2.4
 
 dev_dependencies:
   flutter_test:
