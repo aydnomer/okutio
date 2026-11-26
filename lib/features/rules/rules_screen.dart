@@ -8,6 +8,7 @@ import '../../shared/page_frame.dart';
 import '../../shared/widgets/exam_not_found.dart';
 import '../../shared/widgets/option_card.dart';
 import '../../shared/widgets/scoring_rules_editor.dart';
+import '../voice/voice_command_sheet.dart';
 
 /// Sınavdan sonra da değiştirilebilen puanlama kuralları ve soru iptali.
 class RulesScreen extends ConsumerWidget {
@@ -39,7 +40,10 @@ class _Body extends ConsumerWidget {
     final save = ref.read(examListProvider.notifier).save;
     final cancelled = exam.choiceQuestions.where((q) => q.cancelled).length;
     return Scaffold(
-      appBar: AppBar(title: const Text('Puanlama kuralları')),
+      appBar: AppBar(
+        title: const Text('Puanlama kuralları'),
+        actions: [VoiceCommandButton(exam: exam)],
+      ),
       body: SingleChildScrollView(
         child: PageFrame(
           child: Column(

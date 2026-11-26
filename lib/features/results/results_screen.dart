@@ -14,6 +14,7 @@ import '../../shared/widgets/option_card.dart';
 import '../print_form/print_form_screen.dart';
 import '../rules/rules_screen.dart';
 import '../scan/scan_screen.dart';
+import '../voice/voice_command_sheet.dart';
 
 /// Sınıfın sonuçları: özet, en zor sorular, öğrenci listesi.
 class ResultsScreen extends ConsumerWidget {
@@ -67,6 +68,7 @@ class _Body extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Sonuçlar'),
         actions: [
+          VoiceCommandButton(exam: exam),
           if (sheets.isNotEmpty)
             IconButton(
               tooltip: 'Listeyi PDF olarak indir',

@@ -9,6 +9,7 @@ import '../../core/util/format.dart';
 import '../../data/providers.dart';
 import '../../shared/page_frame.dart';
 import '../../shared/widgets/exam_not_found.dart';
+import '../voice/voice_command_sheet.dart';
 
 /// Bir sınavın özeti ve öğretmenin sıradaki adımları.
 class ExamDetailScreen extends ConsumerWidget {
@@ -116,6 +117,7 @@ class _Body extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Sınav'),
         actions: [
+          VoiceCommandButton(exam: exam),
           PopupMenuButton<String>(
             tooltip: 'Diğer işlemler',
             onSelected: (v) {

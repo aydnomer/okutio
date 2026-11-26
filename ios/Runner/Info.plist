@@ -2,6 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Sınav kâğıtlarının fotoğrafını çekip okumak için kamera gerekir.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Daha önce çektiğiniz kâğıt fotoğraflarını seçebilmeniz için.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Ayarları sesli komutla değiştirebilmeniz için mikrofon gerekir.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Söylediğiniz komutu yazıya çevirmek için konuşma tanıma kullanılır.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
