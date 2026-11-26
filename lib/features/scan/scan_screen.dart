@@ -16,6 +16,7 @@ import '../../shared/page_frame.dart';
 import '../../shared/widgets/action_card.dart';
 import '../../shared/widgets/exam_not_found.dart';
 import '../../shared/widgets/option_card.dart';
+import 'marked_photo.dart';
 
 /// Kâğıt okutma: fotoğraf çek ya da galeriden toplu seç.
 class ScanScreen extends ConsumerWidget {
@@ -134,10 +135,7 @@ class _BodyState extends ConsumerState<_Body> {
           id: const Uuid().v4(),
           now: DateTime.now(),
         );
-        await notifier.save(
-          sheet,
-          images: [for (final o in reading.openAnswers) o.jpeg],
-        );
+        await notifier.save(sheet, images: imagesToStore(reading));
         _sessionIds.add(sheet.id);
       }
       if (mounted) setState(() => _done++);

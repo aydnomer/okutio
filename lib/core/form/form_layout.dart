@@ -138,6 +138,35 @@ class FormPage {
 
   /// QR koduna yazılan metin: biçim sürümü, sınav, sayfa.
   String get qrPayload => FormLayout.payloadFor(examId, index);
+
+  /// Bütün yuvarlakları (numara, kitapçık, test soruları) kapsayan bölge.
+  /// İşaretlenecek yuvarlak yoksa `null`.
+  MmRect? get answerArea {
+    final bubbles = [
+      for (final d in studentNumber) ...d.bubbles,
+      ...bookletBubbles,
+      for (final r in choiceRows) ...r.bubbles,
+    ];
+    if (bubbles.isEmpty) return null;
+    const pad = 4.0;
+    var l = double.infinity, t = double.infinity;
+    var r = -double.infinity, b = -double.infinity;
+    for (final x in bubbles) {
+      l = math.min(l, x.cx);
+      t = math.min(t, x.cy);
+      r = math.max(r, x.cx);
+      b = math.max(b, x.cy);
+    }
+    for (final row in choiceRows) {
+      l = math.min(l, row.labelRect.left);
+    }
+    final rad = FormLayout.bubbleRadius + pad;
+    l = math.max(0, l - pad);
+    t = math.max(0, t - rad);
+    r = math.min(FormLayout.pageWidth, r + rad);
+    b = math.min(FormLayout.pageHeight, b + rad);
+    return MmRect(l, t, r - l, b - t);
+  }
 }
 
 /// Bir sınavın yazdırılacak formu.

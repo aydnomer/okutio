@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../core/ai/ai_grader.dart';
+import '../../core/form/form_layout.dart';
 import '../../core/models/booklet.dart';
 import '../../core/models/exam.dart';
 import '../../core/models/scoring_rules.dart';
@@ -15,6 +16,7 @@ import '../../data/providers.dart';
 import '../../shared/page_frame.dart';
 import '../../shared/widgets/exam_not_found.dart';
 import '../../shared/widgets/option_card.dart';
+import 'marked_photo.dart';
 
 /// Bir öğrenci kâğıdını gözden geçirme: okunan işaretleri düzeltme,
 /// açık uçlu sorulara puan verme ve onaylama.
@@ -167,6 +169,8 @@ class _ReviewState extends ConsumerState<_Review> {
     final score = _sheet.score(exam);
     final images =
         ref.watch(sheetImagesProvider(_sheet.id)).value ?? const <Uint8List>[];
+    final photo = answerAreaImage(images, _sheet.openImageCount);
+    final pages = FormLayout.compute(exam).pages;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Kâğıt'),
@@ -227,6 +231,26 @@ class _ReviewState extends ConsumerState<_Review> {
                     ),
                   ],
                 ),
+                if (photo != null && pages.length == 1) ...[
+                  const SizedBox(height: 20),
+                  Text('Kâğıdın fotoğrafı', style: theme.textTheme.titleMedium),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Doğrular yeşil, yanlışlar kırmızı; kesik yeşil halka '
+                    'doğru cevabı gösterir. Büyütmek için dokunun.',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  MarkedPhoto(
+                    exam: exam,
+                    page: pages.single,
+                    booklet: _booklet,
+                    marks: _sheet.choiceMarks,
+                    jpeg: photo,
+                  ),
+                ],
                 if (exam.usesBooklets) ...[
                   const SizedBox(height: 20),
                   Text('Kitapçık', style: theme.textTheme.titleMedium),

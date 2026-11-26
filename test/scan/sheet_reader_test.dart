@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image/image.dart' as img;
 import 'package:okutio/core/exam_factory.dart';
 import 'package:okutio/core/form/form_layout.dart';
 import 'package:okutio/core/models/exam.dart';
@@ -53,6 +54,24 @@ void main() {
     expect(r.warnings, isEmpty);
     expect(r.openAnswers, hasLength(2));
     expect(r.unsureQuestions, isEmpty);
+  });
+
+  test('işaret alanı fotoğrafı düzeltilip saklanır', () {
+    final r = shoot(const Camera(brightness: 0.3, tilt: 0.15, rotation: 5));
+    final area = layout.pages.first.answerArea!;
+    final jpeg = img.decodeJpg(r.answerArea!)!;
+    const k = SheetReading.answerAreaPxPerMm;
+    expect(jpeg.width, (area.width * k).round());
+    expect(jpeg.height, (area.height * k).round());
+    // Küçük kalsın: telefonda yüzlerce kâğıt saklanabilmeli.
+    expect(r.answerArea!.length, lessThan(150 * 1024));
+    // 1. sorunun A şıkkı işaretli: o yuvarlağın merkezi koyu olmalı.
+    final b = layout.pages.first.choiceRows.first.bubbles.first;
+    final px = jpeg.getPixel(
+      ((b.cx - area.left) * k).round(),
+      ((b.cy - area.top) * k).round(),
+    );
+    expect(px.r, lessThan(120));
   });
 
   test('çok karanlık oda (ışık %25)', () {

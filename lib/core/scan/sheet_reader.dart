@@ -68,6 +68,7 @@ class SheetReading {
     required this.openAnswers,
     required this.warnings,
     required this.markerCenters,
+    this.answerArea,
   });
 
   final FormPage page;
@@ -89,6 +90,13 @@ class SheetReading {
 
   /// Fotoğrafta bulunan köşe kareleri (sol üst, sağ üst, sağ alt, sol alt).
   final List<Point2> markerCenters;
+
+  /// Fotoğrafın düzeltilmiş işaret alanı (numara, kitapçık ve test soruları).
+  /// Öğretmene işaretlerin üstüne yeşil/kırmızı halka çizerek gösterilir.
+  /// Bölge [FormPage.answerArea] ile aynıdır, ölçek [answerAreaPxPerMm].
+  final Uint8List? answerArea;
+
+  static const answerAreaPxPerMm = 4.0;
 
   /// Öğrenci numarası; okunamayan haneler "?" olur, baştaki boş haneler atılır.
   String get studentNumber {
@@ -246,6 +254,7 @@ class SheetReader {
         ),
     ];
 
+    final area = page.answerArea;
     return SheetReading(
       page: page,
       choices: choices,
@@ -255,6 +264,15 @@ class SheetReader {
       openAnswers: open,
       warnings: warnings,
       markerCenters: corners,
+      answerArea: area == null
+          ? null
+          : _cropJpeg(
+              norm,
+              h,
+              area,
+              pxPerMm: SheetReading.answerAreaPxPerMm,
+              quality: 65,
+            ),
     );
   }
 
@@ -563,6 +581,7 @@ class SheetReader {
     Homography h,
     MmRect r, {
     required double pxPerMm,
+    int quality = 75,
   }) {
     final w = (r.width * pxPerMm).round();
     final hh = (r.height * pxPerMm).round();
@@ -570,7 +589,7 @@ class SheetReader {
       final p = h.map(r.left + u / pxPerMm, r.top + v / pxPerMm);
       return (x: p.x, y: p.y);
     });
-    return img.encodeJpg(flat.toImage(), quality: 75);
+    return img.encodeJpg(flat.toImage(), quality: quality);
   }
 }
 
