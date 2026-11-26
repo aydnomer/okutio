@@ -5,6 +5,8 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../core/exam_factory.dart';
 import '../../core/models/exam.dart';
+import '../../core/results/class_report.dart';
+import '../../core/util/format.dart';
 import '../../data/providers.dart';
 import '../../shared/page_frame.dart';
 import '../../shared/widgets/action_card.dart';
@@ -54,11 +56,7 @@ class HomeScreen extends ConsumerWidget {
                 icon: Icons.document_scanner_rounded,
                 title: 'Kâğıt tara',
                 subtitle: 'Sınav kâğıtlarını okutup puanlayın.',
-                onTap: () => showInfo(
-                  context,
-                  'Tarama bir sonraki sürümde geliyor. '
-                  'Şimdilik sınav oluşturup formu yazdırabilirsiniz.',
-                ),
+                onTap: () => _startScan(context, exams.value ?? const []),
               ),
               const SizedBox(height: 32),
               Text('Sınavlarım', style: theme.textTheme.titleLarge),
@@ -91,14 +89,72 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-class _ExamTile extends StatelessWidget {
+/// "Kâğıt tara": tek sınav varsa doğrudan, birden çoksa seçtirerek açar.
+Future<void> _startScan(BuildContext context, List<Exam> exams) async {
+  final ready = exams.where((e) => e.answerKeyComplete).toList();
+  if (exams.isEmpty) {
+    showInfo(context, 'Önce bir sınav oluşturun, sonra kâğıtları okutun.');
+    return;
+  }
+  if (ready.isEmpty) {
+    showInfo(
+      context,
+      'Kâğıt okutmak için önce sınavın cevap anahtarını tamamlayın.',
+    );
+    return;
+  }
+  if (ready.length == 1) {
+    await context.push('/sinav/${ready.single.id}/tara');
+    return;
+  }
+  final picked = await showModalBottomSheet<Exam>(
+    context: context,
+    showDragHandle: true,
+    isScrollControlled: true,
+    builder: (ctx) => SafeArea(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(ctx).height * 0.7,
+        ),
+        child: ListView(
+          shrinkWrap: true,
+          padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: Text(
+                'Hangi sınavın kâğıtlarını okutacaksınız?',
+                style: Theme.of(ctx).textTheme.titleMedium,
+              ),
+            ),
+            for (final e in ready)
+              ListTile(
+                minTileHeight: 60,
+                leading: const Icon(Icons.description_outlined),
+                title: Text(e.title),
+                subtitle: e.classGroup.isEmpty ? null : Text(e.classGroup),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => Navigator.of(ctx).pop(e),
+              ),
+          ],
+        ),
+      ),
+    ),
+  );
+  if (picked != null && context.mounted) {
+    await context.push('/sinav/${picked.id}/tara');
+  }
+}
+
+class _ExamTile extends ConsumerWidget {
   const _ExamTile({required this.exam});
 
   final Exam exam;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final sheets = ref.watch(sheetsProvider(exam.id)).value ?? const [];
     final details = [
       if (exam.classGroup.isNotEmpty) exam.classGroup,
       if (exam.choiceCount > 0) '${exam.choiceCount} test',
@@ -130,10 +186,13 @@ class _ExamTile extends StatelessWidget {
                     const SizedBox(height: 10),
                     _StatusChip(
                       ok: ready,
-                      text: ready
-                          ? 'Formu yazdırmaya hazır'
-                          : 'Cevap anahtarı eksik '
-                                '(${exam.missingAnswerCount} soru)',
+                      text: !ready
+                          ? 'Cevap anahtarı eksik '
+                                '(${exam.missingAnswerCount} soru)'
+                          : sheets.isEmpty
+                          ? 'Kâğıt okutmaya hazır'
+                          : '${sheets.length} kâğıt okundu · ortalama '
+                                '${fmtNum(ClassReport(exam, sheets).average, maxDecimals: 1)}',
                     ),
                   ],
                 ),
