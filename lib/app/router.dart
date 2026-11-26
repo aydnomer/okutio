@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 
+import '../features/answer_key/answer_key_screen.dart';
 import '../features/exam_detail/exam_detail_screen.dart';
 import '../features/exam_wizard/exam_wizard_screen.dart';
 import '../features/home/home_screen.dart';
@@ -15,6 +16,13 @@ GoRouter buildRouter() => GoRouter(
       path: '/sinav/:id',
       builder: (context, state) =>
           ExamDetailScreen(examId: state.pathParameters['id']!),
+      routes: [
+        GoRoute(
+          path: 'anahtar',
+          builder: (context, state) =>
+              AnswerKeyScreen(examId: state.pathParameters['id']!),
+        ),
+      ],
     ),
   ],
 );

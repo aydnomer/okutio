@@ -20,7 +20,10 @@ class PageFrame extends StatelessWidget {
       heightFactor: 1,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: AppTheme.maxContentWidth),
-        child: Padding(padding: padding, child: child),
+        child: SizedBox(
+          width: double.infinity,
+          child: Padding(padding: padding, child: child),
+        ),
       ),
     );
   }
