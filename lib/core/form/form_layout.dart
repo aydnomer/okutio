@@ -219,6 +219,40 @@ class _Builder {
     for (final q in exam.openQuestions) {
       _openBox(q);
     }
+    for (final p in pages) {
+      _stretchOpenBoxes(p);
+    }
+  }
+
+  /// Sayfanın altında boş yer kaldıysa açık uçlu cevap alanlarına satır
+  /// olarak paylaştırır: öğrenciye daha çok yazı yeri, aynı kâğıt.
+  void _stretchOpenBoxes(FormPage p) {
+    final boxes = p.openBoxes;
+    if (boxes.isEmpty) return;
+    const lineH = FormLayout.answerLineHeight;
+    final free = _c.bottom - boxes.last.answerRect.bottom;
+    final extra = (free / boxes.length / lineH).floor();
+    if (extra < 1) return;
+    var shift = 0.0;
+    for (var i = 0; i < boxes.length; i++) {
+      final b = boxes[i];
+      MmRect moved(MmRect r) =>
+          MmRect(r.left, r.top + shift, r.width, r.height);
+      final answer = moved(b.answerRect);
+      boxes[i] = OpenBox(
+        question: b.question,
+        titleRect: moved(b.titleRect),
+        promptRect: moved(b.promptRect),
+        scoreRect: moved(b.scoreRect),
+        answerRect: MmRect(
+          answer.left,
+          answer.top,
+          answer.width,
+          answer.height + extra * lineH,
+        ),
+      );
+      shift += extra * lineH;
+    }
   }
 
   void _newPage() {

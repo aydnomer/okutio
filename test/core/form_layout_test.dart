@@ -132,11 +132,26 @@ void main() {
       for (final b in p.openBoxes) {
         expect(
           b.answerRect.height,
-          10 * FormLayout.answerLineHeight,
+          greaterThanOrEqualTo(10 * FormLayout.answerLineHeight),
           reason: 'alan kısaltılmamalı',
         );
       }
     }
+    _expectClean(layout);
+  });
+
+  test('sayfada kalan boşluk cevap alanlarına satır olarak eklenir', () {
+    final layout = FormLayout.compute(_exam(choice: 10, open: 2));
+    final boxes = layout.pages.single.openBoxes;
+    for (final b in boxes) {
+      expect(b.answerRect.height, greaterThan(4 * FormLayout.answerLineHeight));
+      final lines = b.answerRect.height / FormLayout.answerLineHeight;
+      expect(lines, closeTo(lines.roundToDouble(), 1e-9));
+    }
+    expect(
+      FormLayout.content.bottom - boxes.last.answerRect.bottom,
+      lessThan(2 * FormLayout.answerLineHeight),
+    );
     _expectClean(layout);
   });
 
