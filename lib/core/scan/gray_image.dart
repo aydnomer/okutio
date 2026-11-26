@@ -109,10 +109,15 @@ class GrayImage {
   }
 
   img.Image toImage() {
-    final out = img.Image(width: width, height: height, numChannels: 1);
+    // Üç kanallı: tek kanallı JPEG'i bazı tarayıcılar renkli gösteriyor.
+    final out = img.Image(width: width, height: height);
     var i = 0;
     for (final p in out) {
-      p.r = data[i++];
+      final v = data[i++];
+      p
+        ..r = v
+        ..g = v
+        ..b = v;
     }
     return out;
   }

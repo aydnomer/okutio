@@ -15,10 +15,10 @@ void main() {
   final pdfOut = Platform.environment['OKUTIO_REAL_PDF'];
   final photo = Platform.environment['OKUTIO_REAL_PHOTO'];
   final layout = FormLayout.compute(
-    (ExamDraft(choiceCount: 20, openCount: 2)..bookletCount = 2).build(
-      id: 'sinav-42',
-      now: DateTime(2026),
-    ),
+    (ExamDraft(
+      choiceCount: 20,
+      openCount: 2,
+    )..bookletCount = 2).build(id: 'sinav-42', now: DateTime(2026)),
   );
 
   test('gerçek PDF üret', () async {
@@ -35,12 +35,20 @@ void main() {
     File('$pdfOut.json').writeAsStringSync(
       jsonEncode({
         'choices': [
-          for (final r in p.choiceRows) [for (final b in r.bubbles) [b.cx, b.cy]],
+          for (final r in p.choiceRows)
+            [
+              for (final b in r.bubbles) [b.cx, b.cy],
+            ],
         ],
         'digits': [
-          for (final d in p.studentNumber) [for (final b in d.bubbles) [b.cx, b.cy]],
+          for (final d in p.studentNumber)
+            [
+              for (final b in d.bubbles) [b.cx, b.cy],
+            ],
         ],
-        'booklet': [for (final b in p.bookletBubbles) [b.cx, b.cy]],
+        'booklet': [
+          for (final b in p.bookletBubbles) [b.cx, b.cy],
+        ],
         'r': FormLayout.bubbleRadius,
       }),
     );

@@ -62,6 +62,7 @@ class _Body extends ConsumerWidget {
       if (exam.title != exam.template.title) exam.template.title,
     ].join(' · ');
     final keyDone = exam.answerKeyComplete;
+    final sheetCount = ref.watch(sheetsProvider(exam.id)).value?.length ?? 0;
     final openDone =
         exam.openQuestions.isNotEmpty &&
         exam.openQuestions.every((q) => q.rubricIsComplete);
@@ -92,12 +93,21 @@ class _Body extends ConsumerWidget {
         onTap: () => context.push('/sinav/${exam.id}/form'),
       ),
       _Step(
-        title: 'Kâğıtları tarayın',
-        subtitle: 'Sınavdan sonra kâğıtları okutup puanları görün.',
-        enabled: false,
-        disabledHint: 'Tarama bir sonraki sürümde geliyor.',
-        onTap: () {},
+        title: 'Kâğıtları okutun',
+        subtitle: sheetCount == 0
+            ? 'Fotoğrafını çekin ya da galeriden seçin.'
+            : '$sheetCount kâğıt okundu. Daha fazlasını ekleyebilirsiniz.',
+        done: sheetCount > 0,
+        enabled: keyDone,
+        disabledHint: 'Önce cevap anahtarını tamamlayın.',
+        onTap: () => context.push('/sinav/${exam.id}/tara'),
       ),
+      if (sheetCount > 0)
+        _Step(
+          title: 'Sonuçları görün',
+          subtitle: 'Sınıf ortalaması, en zor sorular, PDF liste.',
+          onTap: () => context.push('/sinav/${exam.id}/sonuclar'),
+        ),
     ];
     final points = const ScoringEngine().questionPoints(exam);
     final choiceEach = points.isEmpty ? 0.0 : points.values.first;

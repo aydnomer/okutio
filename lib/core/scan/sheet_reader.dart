@@ -50,10 +50,12 @@ class ChoiceReading {
 
 /// Açık uçlu sorunun, perspektifi düzeltilmiş cevap görüntüsü.
 class OpenAnswerImage {
-  const OpenAnswerImage(this.questionNumber, this.png);
+  const OpenAnswerImage(this.questionNumber, this.jpeg);
 
   final int questionNumber;
-  final Uint8List png;
+
+  /// Gri tonlu, ışığı düzeltilmiş JPEG.
+  final Uint8List jpeg;
 }
 
 class SheetReading {
@@ -240,7 +242,7 @@ class SheetReader {
       for (final box in page.openBoxes)
         OpenAnswerImage(
           box.question.number,
-          _cropPng(norm, h, box.answerRect, pxPerMm: 6),
+          _cropJpeg(norm, h, box.answerRect, pxPerMm: 5),
         ),
     ];
 
@@ -556,7 +558,7 @@ class SheetReader {
     return null;
   }
 
-  static Uint8List _cropPng(
+  static Uint8List _cropJpeg(
     GrayImage norm,
     Homography h,
     MmRect r, {
@@ -568,7 +570,7 @@ class SheetReader {
       final p = h.map(r.left + u / pxPerMm, r.top + v / pxPerMm);
       return (x: p.x, y: p.y);
     });
-    return img.encodePng(flat.toImage());
+    return img.encodeJpg(flat.toImage(), quality: 75);
   }
 }
 

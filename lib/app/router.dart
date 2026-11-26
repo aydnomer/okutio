@@ -6,6 +6,9 @@ import '../features/exam_wizard/exam_wizard_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/open_questions/open_questions_screen.dart';
 import '../features/print_form/print_form_screen.dart';
+import '../features/results/results_screen.dart';
+import '../features/scan/scan_screen.dart';
+import '../features/scan/sheet_review_screen.dart';
 
 GoRouter buildRouter() => GoRouter(
   routes: [
@@ -33,6 +36,23 @@ GoRouter buildRouter() => GoRouter(
           path: 'form',
           builder: (context, state) =>
               PrintFormScreen(examId: state.pathParameters['id']!),
+        ),
+        GoRoute(
+          path: 'tara',
+          builder: (context, state) =>
+              ScanScreen(examId: state.pathParameters['id']!),
+        ),
+        GoRoute(
+          path: 'sonuclar',
+          builder: (context, state) =>
+              ResultsScreen(examId: state.pathParameters['id']!),
+        ),
+        GoRoute(
+          path: 'kagit/:sheetId',
+          builder: (context, state) => SheetReviewScreen(
+            examId: state.pathParameters['id']!,
+            sheetId: state.pathParameters['sheetId']!,
+          ),
         ),
       ],
     ),

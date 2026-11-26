@@ -7,6 +7,7 @@ import '../../core/exam_factory.dart';
 import '../../core/models/exam.dart';
 import '../../data/providers.dart';
 import '../../shared/page_frame.dart';
+import '../../shared/widgets/action_card.dart';
 
 /// Ana ekran: iki büyük iş (yeni sınav, kâğıt tara) ve sınav listesi.
 class HomeScreen extends ConsumerWidget {
@@ -41,7 +42,7 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              _ActionCard(
+              ActionCard(
                 icon: Icons.add_circle_rounded,
                 title: 'Yeni sınav oluştur',
                 subtitle: 'Soru sayısını seçin, formu yazdırın.',
@@ -49,7 +50,7 @@ class HomeScreen extends ConsumerWidget {
                 onTap: () => context.push('/sinav/yeni'),
               ),
               const SizedBox(height: 12),
-              _ActionCard(
+              ActionCard(
                 icon: Icons.document_scanner_rounded,
                 title: 'Kâğıt tara',
                 subtitle: 'Sınav kâğıtlarını okutup puanlayın.',
@@ -82,65 +83,6 @@ class HomeScreen extends ConsumerWidget {
                         ],
                       ),
               ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ActionCard extends StatelessWidget {
-  const _ActionCard({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-    this.primary = false,
-  });
-
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-  final bool primary;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final fg = primary ? scheme.onPrimary : scheme.onSurface;
-    return Card(
-      color: primary ? scheme.primary : null,
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
-          child: Row(
-            children: [
-              Icon(icon, size: 40, color: primary ? fg : scheme.primary),
-              const SizedBox(width: 18),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleLarge
-                          ?.copyWith(color: fg),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: fg.withValues(alpha: 0.85),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(Icons.chevron_right_rounded, color: fg, size: 30),
             ],
           ),
         ),
