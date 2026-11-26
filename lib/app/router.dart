@@ -5,6 +5,7 @@ import '../features/exam_detail/exam_detail_screen.dart';
 import '../features/exam_wizard/exam_wizard_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/open_questions/open_questions_screen.dart';
+import '../features/print_form/print_form_screen.dart';
 
 GoRouter buildRouter() => GoRouter(
   routes: [
@@ -27,6 +28,11 @@ GoRouter buildRouter() => GoRouter(
           path: 'acik',
           builder: (context, state) =>
               OpenQuestionsScreen(examId: state.pathParameters['id']!),
+        ),
+        GoRoute(
+          path: 'form',
+          builder: (context, state) =>
+              PrintFormScreen(examId: state.pathParameters['id']!),
         ),
       ],
     ),
