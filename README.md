@@ -15,6 +15,18 @@ Tek Flutter kod tabanından **Android, iOS ve web** sürümü çıkar.
 - e-Okul'a uygun Excel çıktısı (yol haritasında)
 - Açık uçlu sorularda öğretmen onaylı yapay zekâ puanlaması (yol haritasında)
 
+## Durum
+
+| Bölüm | Durum |
+|---|---|
+| Sınav oluşturma sihirbazı (7 adım) | Hazır |
+| Cevap anahtarı (dokunarak / yazarak, iptal, çoklu doğru) | Hazır |
+| Açık uçlu soru puanı ve puanlama ölçütleri | Hazır |
+| Optik form PDF'i, yazdırma, indirme | Hazır |
+| Puanlama motoru (kitapçık, yanlış götürme, iptal) | Hazır, testli |
+| Kâğıt tarama (kamera / toplu PDF) | Sıradaki |
+| Sonuçlar ve e-Okul Excel çıktısı | Planlandı |
+
 ## Geliştirme
 
 ```bash
@@ -26,16 +38,28 @@ flutter run -d chrome # web'de çalıştır
 
 Gereken Flutter sürümü: 3.50 veya üzeri (Dart 3.14).
 
+Web derlemesi, yazı tiplerini ve CanvasKit'i internetten çekmesin diye şöyle alınır:
+
+```bash
+flutter build web --release --no-web-resources-cdn
+```
+
+## Sürekli entegrasyon ve web yayını
+
+`.github/workflows/ci.yml` her gönderimde biçim, analiz, test ve web derlemesini çalıştırır.
+`main` dalına gelen her değişiklik GitHub Pages'e yayınlanır. İlk seferde depo ayarlarında
+**Settings → Pages → Source: GitHub Actions** seçilmelidir.
+
 ## Klasör yapısı
 
 ```
 lib/
   app/        Uygulama kabuğu: tema, yönlendirme
-  core/       Ekranlardan bağımsız iş mantığı: modeller, puanlama, PDF üretimi
+  core/       Ekranlardan bağımsız iş mantığı: modeller, puanlama,
+              optik form yerleşimi (form/form_layout.dart) ve PDF üretimi
   data/       Veri saklama (şimdilik cihazda, sonra Supabase)
   features/   Ekranlar, özellik bazında klasörlenmiş
 test/         Birim ve widget testleri
-docs/         Tasarım kararları
 ```
 
 ## Tasarım ilkeleri
