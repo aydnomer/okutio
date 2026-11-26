@@ -40,6 +40,8 @@ jobs:
         run: >
           flutter build web --release --no-web-resources-cdn
           --base-href "/${{ github.event.repository.name }}/"
+          --dart-define=AI_GRADER_URL=${{ vars.AI_GRADER_URL }}
+          --dart-define=AI_GRADER_KEY=${{ vars.AI_GRADER_KEY }}
 
       - name: Pages için yükle
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'

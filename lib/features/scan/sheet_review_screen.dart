@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../core/ai/ai_grader.dart';
 import '../../core/models/booklet.dart';
 import '../../core/models/exam.dart';
 import '../../core/models/question.dart';
@@ -261,6 +262,7 @@ class _ReviewState extends ConsumerState<_Review> {
                     image: i < images.length ? images[i] : null,
                     score: _sheet.openScores[q.number],
                     onChanged: (v) => _setOpen(q.number, v),
+                    subject: exam.subject,
                   ),
                 ],
                 if (exam.choiceCount > 0) ...[
@@ -557,18 +559,53 @@ class _Dot extends StatelessWidget {
 }
 
 /// Açık uçlu soru: öğrencinin cevabının fotoğrafı ve puan seçimi.
-class _OpenScoreCard extends StatelessWidget {
+class _OpenScoreCard extends StatefulWidget {
   const _OpenScoreCard({
     required this.question,
     required this.image,
     required this.score,
     required this.onChanged,
+    this.subject = '',
   });
 
   final OpenQuestion question;
   final Uint8List? image;
   final double? score;
   final ValueChanged<double?> onChanged;
+  final String subject;
+
+  @override
+  State<_OpenScoreCard> createState() => _OpenScoreCardState();
+}
+
+class _OpenScoreCardState extends State<_OpenScoreCard> {
+  AiSuggestion? _ai;
+  String? _aiError;
+  bool _aiBusy = false;
+
+  OpenQuestion get question => widget.question;
+  Uint8List? get image => widget.image;
+  double? get score => widget.score;
+  ValueChanged<double?> get onChanged => widget.onChanged;
+
+  Future<void> _askAi() async {
+    setState(() {
+      _aiBusy = true;
+      _aiError = null;
+    });
+    try {
+      final s = await AiGrader().grade(
+        jpeg: image!,
+        question: question,
+        subject: widget.subject,
+      );
+      if (mounted) setState(() => _ai = s);
+    } on AiGraderException catch (e) {
+      if (mounted) setState(() => _aiError = e.message);
+    } finally {
+      if (mounted) setState(() => _aiBusy = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -630,6 +667,34 @@ class _OpenScoreCard extends StatelessWidget {
               const InfoBox(
                 text: 'Cevabın fotoğrafı bu cihazda yok. Kâğıda bakarak puan verin.',
               ),
+            if (aiGraderConfigured && image != null) ...[
+              const SizedBox(height: 12),
+              if (_ai == null)
+                OutlinedButton.icon(
+                  onPressed: _aiBusy ? null : _askAi,
+                  icon: _aiBusy
+                      ? const SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.auto_awesome_rounded),
+                  label: Text(
+                    _aiBusy
+                        ? 'Yazı okunuyor…'
+                        : 'Yapay zekâ okusun, puan önersin',
+                  ),
+                )
+              else
+                _AiSuggestionCard(
+                  suggestion: _ai!,
+                  max: max,
+                  onApply: () => onChanged(_ai!.suggestedScore),
+                ),
+              if (_aiError != null) ...[
+                const SizedBox(height: 8),
+                InfoBox(warning: true, text: _aiError!),
+              ],
+            ],
             if (q.referenceAnswer.isNotEmpty) ...[
               const SizedBox(height: 12),
               Text(
@@ -701,6 +766,97 @@ class _OpenScoreCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _AiSuggestionCard extends StatelessWidget {
+  const _AiSuggestionCard({
+    required this.suggestion,
+    required this.max,
+    required this.onApply,
+  });
+
+  final AiSuggestion suggestion;
+  final double max;
+  final VoidCallback onApply;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final s = suggestion;
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: scheme.secondaryContainer.withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.auto_awesome_rounded, color: scheme.primary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Öneri: ${fmtNum(s.suggestedScore)} / ${fmtNum(max)}',
+                  style: theme.textTheme.titleMedium,
+                ),
+              ),
+              Text(s.confidenceLabel, style: theme.textTheme.labelMedium),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text('Öğrencinin yazdığı', style: theme.textTheme.labelLarge),
+          const SizedBox(height: 2),
+          Text(
+            s.transcription.isEmpty ? '(boş)' : s.transcription,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+          if (!s.legible)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                'Yazı büyük ölçüde okunamadı; kâğıda bakarak puanlayın.',
+                style: TextStyle(color: scheme.error),
+              ),
+            ),
+          const SizedBox(height: 10),
+          for (final c in s.criteria)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 3),
+              child: Text(
+                '• ${c.title}: ${fmtNum(c.points)} puan. ${c.reason}',
+                style: theme.textTheme.bodyMedium,
+              ),
+            ),
+          if (s.feedback.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Text(
+              'Öğrenciye not: ${s.feedback}',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+          const SizedBox(height: 10),
+          FilledButton.tonalIcon(
+            onPressed: onApply,
+            icon: const Icon(Icons.check_rounded),
+            label: const Text('Öneriyi uygula'),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Son karar sizin: puanı aşağıdan değiştirebilirsiniz.',
+            style: theme.textTheme.labelSmall,
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }

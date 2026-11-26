@@ -24,8 +24,10 @@ Tek Flutter kod tabanından **Android, iOS ve web** sürümü çıkar.
 | Açık uçlu soru puanı ve puanlama ölçütleri | Hazır |
 | Optik form PDF'i, yazdırma, indirme | Hazır |
 | Puanlama motoru (kitapçık, yanlış götürme, iptal) | Hazır, testli |
-| Kâğıt tarama (kamera / toplu PDF) | Sıradaki |
-| Sonuçlar ve e-Okul Excel çıktısı | Planlandı |
+| Fotoğraftan okuma (karanlık, gölgeli, eğik, ters çekim) | Hazır, testli |
+| Kâğıt kontrolü, açık uçlu puanlama, sonuçlar ve PDF liste | Hazır |
+| Açık uçlu için yapay zekâ önerisi (öğretmen onaylı) | Hazır, sunucu kurulumu gerekir |
+| e-Okul Excel çıktısı | Planlandı |
 
 ## Geliştirme
 
@@ -49,6 +51,21 @@ flutter build web --release --no-web-resources-cdn
 `.github/workflows/ci.yml` her gönderimde biçim, analiz, test ve web derlemesini çalıştırır.
 `main` dalına gelen her değişiklik GitHub Pages'e yayınlanır. İlk seferde depo ayarlarında
 **Settings → Pages → Source: GitHub Actions** seçilmelidir.
+
+## Yapay zekâ ile açık uçlu okuma
+
+El yazısı cevaplar `supabase/functions/grade-open-answer` fonksiyonuyla okunur. API anahtarı
+yalnızca sunucuda durur; uygulamaya yalnızca cevap alanının fotoğrafı gönderilir (ad, numara,
+QR gönderilmez). Puan bir öneridir, öğretmen onaylamadan kesinleşmez.
+
+```bash
+supabase secrets set ANTHROPIC_API_KEY=...
+supabase functions deploy grade-open-answer
+```
+
+Sonra GitHub deposunda **Settings → Secrets and variables → Actions → Variables** altına
+`AI_GRADER_URL` (fonksiyon adresi) ve `AI_GRADER_KEY` (Supabase anon anahtarı) eklenir.
+Bunlar yoksa uygulama yapay zekâ düğmesini göstermez, gerisi aynen çalışır.
 
 ## Klasör yapısı
 
