@@ -4,12 +4,12 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../core/exam_factory.dart';
 import '../../core/models/exam.dart';
-import '../../core/models/scoring_rules.dart';
 import '../../data/providers.dart';
 import '../../core/util/format.dart';
 import '../../shared/page_frame.dart';
 import '../../shared/widgets/number_stepper.dart';
 import '../../shared/widgets/option_card.dart';
+import '../../shared/widgets/scoring_rules_editor.dart';
 
 /// Adım adım sınav oluşturma. Her ekranda tek bir soru sorulur.
 class ExamWizardScreen extends ConsumerStatefulWidget {
@@ -360,75 +360,21 @@ class _ExamWizardScreenState extends ConsumerState<ExamWizardScreen> {
     ],
   );
 
-  Widget _rulesStep() {
-    final rules = _draft.rules;
-    void set(ScoringRules r) => _update(() => _draft.rules = r);
-    final theme = Theme.of(context);
-    Widget label(String text) => Padding(
-      padding: const EdgeInsets.only(top: 24, bottom: 10),
-      child: Text(text, style: theme.textTheme.titleMedium),
-    );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const StepHeader(
-          title: 'Puanlama kuralları',
-          help: 'Seçtiğiniz sınav türüne göre dolduruldu. Sınavdan sonra da değiştirebilirsiniz.',
-        ),
-        label('Yanlışlar doğruyu götürsün mü?'),
-        SegmentedButton<int>(
-          segments: const [
-            ButtonSegment(value: 0, label: Text('Hayır')),
-            ButtonSegment(value: 3, label: Text('3 yanlış 1 doğru')),
-            ButtonSegment(value: 4, label: Text('4 yanlış 1 doğru')),
-          ],
-          selected: {rules.wrongPenaltyDivisor ?? 0},
-          showSelectedIcon: false,
-          style: SegmentedButton.styleFrom(minimumSize: const Size(0, 52)),
-          onSelectionChanged: (s) => set(
-            rules.copyWith(
-              wrongPenaltyDivisor: () => s.first == 0 ? null : s.first,
-            ),
-          ),
-        ),
-        label('Bir soruda birden fazla şık işaretlenirse'),
-        SegmentedButton<MultiMarkPolicy>(
-          segments: [
-            for (final p in MultiMarkPolicy.values)
-              ButtonSegment(value: p, label: Text(p.label)),
-          ],
-          selected: {rules.multiMarkPolicy},
-          showSelectedIcon: false,
-          style: SegmentedButton.styleFrom(minimumSize: const Size(0, 52)),
-          onSelectionChanged: (s) =>
-              set(rules.copyWith(multiMarkPolicy: s.first)),
-        ),
-        label('Bir soruyu iptal ederseniz'),
-        SegmentedButton<CancelPolicy>(
-          segments: [
-            for (final p in CancelPolicy.values)
-              ButtonSegment(value: p, label: Text(p.label)),
-          ],
-          selected: {rules.cancelPolicy},
-          showSelectedIcon: false,
-          style: SegmentedButton.styleFrom(minimumSize: const Size(0, 52)),
-          onSelectionChanged: (s) => set(rules.copyWith(cancelPolicy: s.first)),
-        ),
-        label('Puanlar nasıl yuvarlansın?'),
-        SegmentedButton<double>(
-          segments: const [
-            ButtonSegment(value: 1, label: Text('Tam sayıya')),
-            ButtonSegment(value: 0.5, label: Text('Yarım puana')),
-            ButtonSegment(value: 0, label: Text('Yuvarlama')),
-          ],
-          selected: {rules.roundingStep},
-          showSelectedIcon: false,
-          style: SegmentedButton.styleFrom(minimumSize: const Size(0, 52)),
-          onSelectionChanged: (s) => set(rules.copyWith(roundingStep: s.first)),
-        ),
-      ],
-    );
-  }
+  Widget _rulesStep() => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      const StepHeader(
+        title: 'Puanlama kuralları',
+        help:
+            'Seçtiğiniz sınav türüne göre dolduruldu. Sınavdan sonra da '
+            'değiştirebilirsiniz; puanlar kendiliğinden yeniden hesaplanır.',
+      ),
+      ScoringRulesEditor(
+        rules: _draft.rules,
+        onChanged: (r) => _update(() => _draft.rules = r),
+      ),
+    ],
+  );
 
   Widget _summaryStep() {
     final d = _draft;

@@ -7,6 +7,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../core/ai/ai_grader.dart';
 import '../../core/models/booklet.dart';
 import '../../core/models/exam.dart';
+import '../../core/models/scoring_rules.dart';
 import '../../core/models/question.dart';
 import '../../core/models/student_sheet.dart';
 import '../../core/util/format.dart';
@@ -287,6 +288,7 @@ class _ReviewState extends ConsumerState<_Review> {
                       optionCount: exam.optionCount,
                       marked: _sheet.choiceMarks[n] ?? const {},
                       review: _sheet.needsReview.contains(n),
+                      multiPolicy: exam.rules.multiMarkPolicy,
                       onTap: (o) => _toggleMark(n, o),
                     ),
                 ],
@@ -424,6 +426,7 @@ class _AnswerRow extends StatelessWidget {
     required this.optionCount,
     required this.marked,
     required this.review,
+    required this.multiPolicy,
     required this.onTap,
   });
 
@@ -433,6 +436,7 @@ class _AnswerRow extends StatelessWidget {
   final int optionCount;
   final Set<int> marked;
   final bool review;
+  final MultiMarkPolicy multiPolicy;
   final ValueChanged<int> onTap;
 
   @override
@@ -444,11 +448,21 @@ class _AnswerRow extends StatelessWidget {
       for (final o in question.correctOptions)
         booklet.bookletOptionOf(master, o),
     };
+    final multi = !question.cancelled && marked.length > 1;
+    final note = question.cancelled
+        ? 'İptal'
+        : review
+        ? 'Silik'
+        : multi
+        ? 'Çift işaret\n${multiPolicy == MultiMarkPolicy.wrong ? 'yanlış' : 'boş'} sayıldı'
+        : marked.isEmpty
+        ? 'Boş'
+        : null;
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 2),
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
       decoration: BoxDecoration(
-        color: review ? scheme.tertiaryContainer : null,
+        color: review || multi ? scheme.tertiaryContainer : null,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -477,13 +491,14 @@ class _AnswerRow extends StatelessWidget {
               ),
             ),
           const Spacer(),
-          if (question.cancelled)
-            Text('İptal', style: theme.textTheme.labelMedium)
-          else if (review)
+          if (note != null)
             Text(
-              'Silik',
+              note,
+              textAlign: TextAlign.right,
               style: theme.textTheme.labelMedium?.copyWith(
-                color: scheme.onTertiaryContainer,
+                color: review || multi
+                    ? scheme.onTertiaryContainer
+                    : scheme.onSurfaceVariant,
               ),
             ),
         ],

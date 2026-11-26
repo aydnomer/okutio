@@ -7,6 +7,7 @@ import '../features/home/home_screen.dart';
 import '../features/open_questions/open_questions_screen.dart';
 import '../features/print_form/print_form_screen.dart';
 import '../features/results/results_screen.dart';
+import '../features/rules/rules_screen.dart';
 import '../features/scan/scan_screen.dart';
 import '../features/scan/sheet_review_screen.dart';
 
@@ -41,6 +42,11 @@ GoRouter buildRouter() => GoRouter(
           path: 'tara',
           builder: (context, state) =>
               ScanScreen(examId: state.pathParameters['id']!),
+        ),
+        GoRoute(
+          path: 'kurallar',
+          builder: (context, state) =>
+              RulesScreen(examId: state.pathParameters['id']!),
         ),
         GoRoute(
           path: 'sonuclar',

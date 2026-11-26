@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:okutio/core/exam_factory.dart';
 import 'package:okutio/core/form/form_layout.dart';
 import 'package:okutio/core/models/exam.dart';
+import 'package:okutio/core/models/scoring_rules.dart';
 import 'package:okutio/core/models/student_sheet.dart';
 import 'package:okutio/core/results/class_report.dart';
 import 'package:okutio/core/scan/sheet_import.dart';
@@ -78,5 +79,39 @@ void main() {
     expect(report.lowest, 72);
     expect(report.average, 86);
     expect(report.hardest().map((q) => q.number), [10]);
+  });
+
+  test('çift işaret öğretmene gösterilir, kurala göre sayılır', () {
+    final s = scan({
+      for (var q = 1; q <= 9; q++) q: {key[q - 1]},
+      10: {0, 1},
+    }, '21');
+    expect(s.choiceMarks[10], {0, 1});
+    expect(s.issues(exam), contains('1 soruda birden fazla işaret'));
+    expect(s.score(exam).wrong, 1);
+    final asBlank = exam.copyWith(
+      rules: exam.rules.copyWith(multiMarkPolicy: MultiMarkPolicy.blank),
+    );
+    expect(s.score(asBlank).blank, 1);
+    expect(s.score(asBlank).wrong, 0);
+  });
+
+  test('sonradan iptal edilen soru okunmuş kâğıtlara hemen yansır', () {
+    final s = scan({
+      for (var q = 1; q <= 9; q++) q: {key[q - 1]},
+      10: {3},
+    }, '22');
+    final before = s.copyWith(openScores: {1: 10, 2: 10}).score(exam).total;
+    final cancelled = exam.copyWith(
+      choiceQuestions: [
+        for (final q in exam.choiceQuestions)
+          q.number == 10 ? q.copyWith(cancelled: true) : q,
+      ],
+    );
+    final after = s.copyWith(openScores: {1: 10, 2: 10}).score(cancelled).total;
+    expect(before, 92);
+    expect(after, 100);
+    // İptal edilen sorudaki çift işaret artık uyarı sayılmaz.
+    expect(s.multiMarkedCount(cancelled), 0);
   });
 }

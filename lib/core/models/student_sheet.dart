@@ -59,10 +59,18 @@ class StudentSheet {
     if (studentNumber.isEmpty || studentNumber.contains('?'))
       'Öğrenci numarası okunamadı',
     if (needsReview.isNotEmpty) '${needsReview.length} soruda silik işaret',
+    if (multiMarkedCount(exam) > 0)
+      '${multiMarkedCount(exam)} soruda birden fazla işaret',
     if (bookletSource == BookletSource.guessed) 'Kitapçık tahmin edildi',
     if (exam.openQuestions.any((q) => openScores[q.number] == null))
       'Açık uçlu puan bekliyor',
   ];
+
+  /// İptal edilmemiş sorulardan birden fazla şık işaretlenenlerin sayısı.
+  int multiMarkedCount(Exam exam) =>
+      score(exam).questions
+          .where((q) => q.multiMarked && q.outcome != QuestionOutcome.cancelled)
+          .length;
 
   StudentResponse toResponse() => StudentResponse(
     bookletCode: bookletCode,

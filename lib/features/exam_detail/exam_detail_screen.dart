@@ -183,6 +183,22 @@ class _Body extends ConsumerWidget {
                   onTap: step.onTap,
                 ),
               ],
+              const SizedBox(height: 16),
+              Card(
+                margin: EdgeInsets.zero,
+                clipBehavior: Clip.antiAlias,
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 6,
+                  ),
+                  leading: const Icon(Icons.rule_rounded),
+                  title: const Text('Puanlama kuralları ve soru iptali'),
+                  subtitle: Text(_rulesSummary(exam)),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => context.push('/sinav/${exam.id}/kurallar'),
+                ),
+              ),
               if (exam.usesBooklets && keyDone) ...[
                 const SizedBox(height: 28),
                 Text('Kitapçık anahtarları', style: theme.textTheme.titleLarge),
@@ -373,4 +389,14 @@ class _BookletKeys extends StatelessWidget {
       ),
     );
   }
+}
+
+String _rulesSummary(Exam exam) {
+  final cancelled = exam.choiceQuestions.where((q) => q.cancelled).length;
+  return [
+    if (exam.choiceCount > 0) exam.rules.penaltyLabel,
+    if (exam.choiceCount > 0)
+      'çift işaret: ${exam.rules.multiMarkPolicy.label.toLowerCase()}',
+    if (cancelled > 0) '$cancelled soru iptal',
+  ].join(' · ');
 }
