@@ -7,6 +7,7 @@ import '../../core/models/question.dart';
 import '../../core/scoring/answer_input.dart';
 import '../../data/providers.dart';
 import '../../shared/page_frame.dart';
+import '../../shared/widgets/exam_not_found.dart';
 import '../../shared/widgets/option_card.dart';
 
 /// Çoktan seçmeli soruların cevap anahtarı (ana kitapçık).
@@ -23,8 +24,8 @@ class AnswerKeyScreen extends ConsumerWidget {
     return exam.when(
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (_, _) => const _Missing(),
-      data: (e) => e == null ? const _Missing() : _Editor(initial: e),
+      error: (_, _) => const ExamNotFound(),
+      data: (e) => e == null ? const ExamNotFound() : _Editor(initial: e),
     );
   }
 }
@@ -545,29 +546,6 @@ class _TypeAnswersDialogState extends State<_TypeAnswersDialog> {
           child: const Text('Uygula'),
         ),
       ],
-    );
-  }
-}
-
-class _Missing extends StatelessWidget {
-  const _Missing();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: PageFrame(
-        child: Column(
-          children: [
-            const InfoBox(text: 'Bu sınav bulunamadı. Silinmiş olabilir.'),
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: () => context.go('/'),
-              child: const Text('Ana sayfaya dön'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

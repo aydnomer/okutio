@@ -8,6 +8,7 @@ import '../../core/scoring/scoring_engine.dart';
 import '../../core/util/format.dart';
 import '../../data/providers.dart';
 import '../../shared/page_frame.dart';
+import '../../shared/widgets/exam_not_found.dart';
 
 /// Bir sınavın özeti ve öğretmenin sıradaki adımları.
 class ExamDetailScreen extends ConsumerWidget {
@@ -21,8 +22,8 @@ class ExamDetailScreen extends ConsumerWidget {
     return exam.when(
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (_, _) => const _NotFound(),
-      data: (e) => e == null ? const _NotFound() : _Body(exam: e),
+      error: (_, _) => const ExamNotFound(),
+      data: (e) => e == null ? const ExamNotFound() : _Body(exam: e),
     );
   }
 }
@@ -61,6 +62,43 @@ class _Body extends ConsumerWidget {
       if (exam.title != exam.template.title) exam.template.title,
     ].join(' · ');
     final keyDone = exam.answerKeyComplete;
+    final openDone =
+        exam.openQuestions.isNotEmpty &&
+        exam.openQuestions.every((q) => q.rubricIsComplete);
+    final steps = <_Step>[
+      if (exam.choiceCount > 0)
+        _Step(
+          title: 'Cevap anahtarını girin',
+          subtitle: keyDone
+              ? 'Tamamlandı. Değiştirmek için dokunun.'
+              : '${exam.missingAnswerCount} sorunun cevabı eksik.',
+          done: keyDone,
+          onTap: () => context.push('/sinav/${exam.id}/anahtar'),
+        ),
+      if (exam.openCount > 0)
+        _Step(
+          title: 'Açık uçlu soruları hazırlayın',
+          subtitle: openDone
+              ? 'Puanlar ve ölçütler hazır.'
+              : 'Puan, beklenen cevap ve ölçütler (isteğe bağlı).',
+          done: openDone,
+          onTap: () => context.push('/sinav/${exam.id}/acik'),
+        ),
+      _Step(
+        title: 'Optik formu yazdırın',
+        subtitle: 'Her öğrenci için QR kodlu form hazırlanır.',
+        enabled: keyDone,
+        disabledHint: 'Önce cevap anahtarını tamamlayın.',
+        onTap: () => context.push('/sinav/${exam.id}/form'),
+      ),
+      _Step(
+        title: 'Kâğıtları tarayın',
+        subtitle: 'Sınavdan sonra kâğıtları okutup puanları görün.',
+        enabled: false,
+        disabledHint: 'Tarama bir sonraki sürümde geliyor.',
+        onTap: () {},
+      ),
+    ];
     final points = const ScoringEngine().questionPoints(exam);
     final choiceEach = points.isEmpty ? 0.0 : points.values.first;
 
@@ -123,37 +161,18 @@ class _Body extends ConsumerWidget {
               const SizedBox(height: 28),
               Text('Sıradaki adımlar', style: theme.textTheme.titleLarge),
               const SizedBox(height: 12),
-              if (exam.choiceCount > 0) ...[
+              for (final (i, step) in steps.indexed) ...[
+                if (i > 0) const SizedBox(height: 10),
                 _StepCard(
-                  number: 1,
-                  title: 'Cevap anahtarını girin',
-                  subtitle: keyDone
-                      ? 'Tamamlandı. Değiştirmek için dokunun.'
-                      : '${exam.missingAnswerCount} sorunun cevabı eksik.',
-                  done: keyDone,
-                  onTap: () => context.push('/sinav/${exam.id}/anahtar'),
+                  number: i + 1,
+                  title: step.title,
+                  subtitle: step.subtitle,
+                  done: step.done,
+                  enabled: step.enabled,
+                  disabledHint: step.disabledHint,
+                  onTap: step.onTap,
                 ),
-                const SizedBox(height: 10),
               ],
-              _StepCard(
-                number: exam.choiceCount > 0 ? 2 : 1,
-                title: 'Optik formu yazdırın',
-                subtitle: 'Her öğrenci için QR kodlu form hazırlanır.',
-                done: false,
-                enabled: keyDone || exam.choiceCount == 0,
-                disabledHint: 'Önce cevap anahtarını tamamlayın.',
-                onTap: () => context.push('/sinav/${exam.id}/form'),
-              ),
-              const SizedBox(height: 10),
-              _StepCard(
-                number: exam.choiceCount > 0 ? 3 : 2,
-                title: 'Kâğıtları tarayın',
-                subtitle: 'Sınavdan sonra kâğıtları okutup puanları görün.',
-                done: false,
-                enabled: false,
-                disabledHint: 'Tarama bir sonraki sürümde geliyor.',
-                onTap: () {},
-              ),
               if (exam.usesBooklets && keyDone) ...[
                 const SizedBox(height: 28),
                 Text('Kitapçık anahtarları', style: theme.textTheme.titleLarge),
@@ -173,6 +192,24 @@ class _Body extends ConsumerWidget {
       ),
     );
   }
+}
+
+class _Step {
+  const _Step({
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+    this.done = false,
+    this.enabled = true,
+    this.disabledHint,
+  });
+
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+  final bool done;
+  final bool enabled;
+  final String? disabledHint;
 }
 
 class _Fact extends StatelessWidget {
@@ -321,32 +358,6 @@ class _BookletKeys extends StatelessWidget {
                     ),
                 ],
               ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _NotFound extends StatelessWidget {
-  const _NotFound();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: PageFrame(
-        child: Column(
-          children: [
-            const SizedBox(height: 40),
-            const Icon(Icons.search_off_rounded, size: 56),
-            const SizedBox(height: 12),
-            const Text('Bu sınav bulunamadı. Silinmiş olabilir.'),
-            const SizedBox(height: 20),
-            FilledButton(
-              onPressed: () => context.go('/'),
-              child: const Text('Ana ekrana dön'),
-            ),
           ],
         ),
       ),

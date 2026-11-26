@@ -4,6 +4,7 @@ import '../features/answer_key/answer_key_screen.dart';
 import '../features/exam_detail/exam_detail_screen.dart';
 import '../features/exam_wizard/exam_wizard_screen.dart';
 import '../features/home/home_screen.dart';
+import '../features/open_questions/open_questions_screen.dart';
 
 GoRouter buildRouter() => GoRouter(
   routes: [
@@ -21,6 +22,11 @@ GoRouter buildRouter() => GoRouter(
           path: 'anahtar',
           builder: (context, state) =>
               AnswerKeyScreen(examId: state.pathParameters['id']!),
+        ),
+        GoRoute(
+          path: 'acik',
+          builder: (context, state) =>
+              OpenQuestionsScreen(examId: state.pathParameters['id']!),
         ),
       ],
     ),
