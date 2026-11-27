@@ -174,15 +174,7 @@ class _Body extends ConsumerWidget {
                     ),
                   ],
                   const SizedBox(height: 24),
-                  Text('Öğrenciler', style: theme.textTheme.titleLarge),
-                  const SizedBox(height: 8),
-                  for (final s in sheets)
-                    SheetTile(
-                      exam: exam,
-                      sheet: s,
-                      onTap: () =>
-                          context.push('/sinav/${exam.id}/kagit/${s.id}'),
-                    ),
+                  _StudentList(exam: exam, report: report),
                 ],
                 const SizedBox(height: 24),
               ],
@@ -280,6 +272,91 @@ class _HardQuestion extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+enum _Sort { number, scoreDesc, scoreAsc }
+
+/// Öğrenci listesi: numaraya ya da puana göre sıralanabilir.
+class _StudentList extends StatefulWidget {
+  const _StudentList({required this.exam, required this.report});
+
+  final Exam exam;
+  final ClassReport report;
+
+  @override
+  State<_StudentList> createState() => _StudentListState();
+}
+
+class _StudentListState extends State<_StudentList> {
+  _Sort _sort = _Sort.number;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final r = widget.report;
+    final order = List.generate(r.count, (i) => i);
+    if (_sort != _Sort.number) {
+      order.sort((a, b) {
+        final c = r.scores[a].total.compareTo(r.scores[b].total);
+        return _sort == _Sort.scoreAsc ? c : -c;
+      });
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text('Öğrenciler', style: theme.textTheme.titleLarge),
+            ),
+            PopupMenuButton<_Sort>(
+              tooltip: 'Sırala',
+              initialValue: _sort,
+              onSelected: (v) => setState(() => _sort = v),
+              itemBuilder: (_) => const [
+                PopupMenuItem(
+                  value: _Sort.number,
+                  child: Text('Numaraya göre'),
+                ),
+                PopupMenuItem(
+                  value: _Sort.scoreDesc,
+                  child: Text('En yüksek puan önce'),
+                ),
+                PopupMenuItem(
+                  value: _Sort.scoreAsc,
+                  child: Text('En düşük puan önce'),
+                ),
+              ],
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.sort_rounded),
+                    const SizedBox(width: 6),
+                    Text(switch (_sort) {
+                      _Sort.number => 'Numara',
+                      _Sort.scoreDesc => 'Puan ↓',
+                      _Sort.scoreAsc => 'Puan ↑',
+                    }),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        for (final i in order)
+          SheetTile(
+            exam: widget.exam,
+            sheet: r.sheets[i],
+            onTap: () => context.push(
+              '/sinav/${widget.exam.id}/kagit/${r.sheets[i].id}',
+            ),
+          ),
+      ],
     );
   }
 }
