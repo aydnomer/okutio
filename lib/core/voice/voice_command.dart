@@ -195,7 +195,10 @@ class VoiceCommands {
     if (digit != null) return int.parse(digit.group(1)!);
     final after = RegExp(r'soru\w*\s+(\d+)').firstMatch(s);
     if (after != null) return int.parse(after.group(1)!);
-    final words = RegExp(r'((?:\w+\s+)?\w+)\s+soru').firstMatch(s);
+    final numbered = RegExp(r'(\d+) numara\w*\s+soru').firstMatch(s);
+    if (numbered != null) return int.parse(numbered.group(1)!);
+    final words = RegExp(r'((?:\w+\s+)?\w+)(?:\s+numara\w*)?\s+soru')
+        .firstMatch(s);
     if (words != null) return _wordNumber(words.group(1)!);
     return null;
   }
@@ -247,7 +250,11 @@ class VoiceCommands {
   };
 
   int? _wordNumber(String phrase) {
-    final w = phrase.split(RegExp(r'\s+'));
+    final w = phrase
+        .split(RegExp(r'\s+'))
+        .where((x) => !x.startsWith('numara'))
+        .toList();
+    if (w.isEmpty) return null;
     final last = w.last;
     final prev = w.length > 1 ? w[w.length - 2] : null;
     final lastVal = _unitOrd[last] ?? _units[last];

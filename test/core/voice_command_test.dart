@@ -63,4 +63,23 @@ void main() {
     expect(r.notUnderstood, isNotEmpty);
     expect(identical(r.exam, exam), isTrue);
   });
+
+  test('"numaralı soru" ifadesi', () {
+    expect(
+      v
+          .apply(exam, 'beş numaralı soruyu iptal et')
+          .exam
+          .choiceQuestions[4]
+          .cancelled,
+      isTrue,
+    );
+    expect(
+      v
+          .apply(exam, '8 numaralı soruyu iptal et')
+          .exam
+          .choiceQuestions[7]
+          .cancelled,
+      isTrue,
+    );
+  });
 }
