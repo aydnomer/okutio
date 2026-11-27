@@ -52,7 +52,13 @@ jobs:
   deploy:
     name: GitHub Pages'e yayınla
     needs: check
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Pages yalnızca açıkça etkinleştirilince çalışır: gizli repoda Pages
+    # kapalı olduğu için her push'ta hata e-postası gelmesin. Açmak için
+    # Settings > Secrets and variables > Actions > Variables kısmına
+    # PAGES_ENABLED = true ekleyin.
+    if: >-
+      github.event_name == 'push' && github.ref == 'refs/heads/main' &&
+      vars.PAGES_ENABLED == 'true'
     runs-on: ubuntu-latest
     permissions:
       pages: write
