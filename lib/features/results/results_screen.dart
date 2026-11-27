@@ -98,6 +98,10 @@ class _Body extends ConsumerWidget {
                       _Stat('Ortalama', fmtNum(report.average, maxDecimals: 1)),
                       _Stat('En yüksek', fmtNum(report.highest)),
                       _Stat('En düşük', fmtNum(report.lowest)),
+                      _Stat(
+                        '50 ve üstü',
+                        '%${(report.passRate * 100).round()}',
+                      ),
                     ],
                   ),
                   if (pending.isNotEmpty) ...[
