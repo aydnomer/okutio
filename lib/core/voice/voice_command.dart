@@ -37,6 +37,7 @@ class VoiceCommands {
     '4 yanlış 1 doğruyu götürsün',
     'yanlışlar doğruyu götürmesin',
     '3. sorunun cevabı C',
+    '6. sorunun cevabı B ve C',
     'yarım puana yuvarla',
   ];
 
