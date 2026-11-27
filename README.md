@@ -26,6 +26,10 @@ Tek Flutter kod tabanından **Android, iOS ve web** sürümü çıkar.
 | Puanlama motoru (kitapçık, yanlış götürme, iptal) | Hazır, testli |
 | Fotoğraftan okuma (karanlık, gölgeli, eğik, ters çekim) | Hazır, testli |
 | Kâğıt kontrolü, açık uçlu puanlama, sonuçlar ve PDF liste | Hazır |
+| Fotoğrafta doğrular yeşil, yanlışlar kırmızı gösterim | Hazır, testli |
+| Sonradan puanlama kuralları, soru iptali (herkese doğru / hesaptan çıkar) | Hazır, testli |
+| Boş ve çift işaret etiketleri, çift işaret uyarısı | Hazır |
+| Sesli komut (Türkçe; iptal, kurallar, cevap anahtarı) | Hazır, testli |
 | Açık uçlu için yapay zekâ önerisi (öğretmen onaylı) | Hazır, sunucu kurulumu gerekir |
 | e-Okul Excel çıktısı | Planlandı |
 
