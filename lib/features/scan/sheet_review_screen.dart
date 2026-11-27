@@ -437,6 +437,11 @@ class _Legend extends StatelessWidget {
         item(Colors.green.shade600, Colors.green.shade600, 'Doğru işaret'),
         item(Colors.red.shade600, Colors.red.shade600, 'Yanlış işaret'),
         item(Colors.transparent, Colors.green.shade600, 'Doğru cevap'),
+        item(
+          Theme.of(context).colorScheme.tertiaryContainer,
+          Theme.of(context).colorScheme.tertiaryContainer,
+          'Silik ya da çift işaret',
+        ),
       ],
     );
   }
