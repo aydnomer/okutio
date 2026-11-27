@@ -82,4 +82,11 @@ void main() {
       isTrue,
     );
   });
+
+  test('iki doğru cevaplı soru', () {
+    final r = v.apply(exam, '6. sorunun cevabı B ve C, 2. soruyu iptal et');
+    expect(r.exam.choiceQuestions[5].correctOptions, {1, 2});
+    expect(r.exam.choiceQuestions[1].cancelled, isTrue);
+    expect(r.done.first, '6. sorunun doğru cevapları B ve C yapıldı.');
+  });
 }

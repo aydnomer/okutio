@@ -44,7 +44,11 @@ class VoiceCommands {
     var e = exam;
     final done = <String>[];
     final missed = <String>[];
-    final norm = normalize(text);
+    // "B ve C" gibi çok cevaplı soruları cümle bölünmeden önce birleştir.
+    final norm = normalize(text).replaceAllMapped(
+      RegExp(r'\b([a-e])\s+(?:ve|ile|veya)\s+([a-e])\b'),
+      (m) => '${m[1]}+${m[2]}',
+    );
     // Cümle parçalarına ayır ama "herkese doğru say" gibi tamamlayıcıları
     // bir önceki iptal komutuna bağla.
     final parts = norm
@@ -161,19 +165,26 @@ class VoiceCommands {
     // --- Cevap anahtarı: "3. sorunun cevabı C", "3. soru C" ---
     if (validN) {
       final m = RegExp(
-        r'(?:cevab\w*|yanit\w*|dogru\w*|soru\w*)\s+(?:sikki\s+)?([a-e])(?:\s+sikki)?\s*(?:olsun|olacak|yap|dir|$)',
+        r'(?:cevab\w*|yanit\w*|dogru\w*|soru\w*)\s+(?:sikki\s+)?([a-e](?:\+[a-e])*)(?:\s+sikki)?\s*(?:olsun|olacak|yap|dir|$)',
       ).firstMatch(s);
       if (m != null) {
-        final opt = 'abcde'.indexOf(m.group(1)!);
-        if (opt < e.optionCount) {
+        final opts = {
+          for (final l in m.group(1)!.split('+')) 'abcde'.indexOf(l),
+        };
+        if (opts.every((o) => o < e.optionCount)) {
+          final letters = (opts.toList()..sort())
+              .map((o) => optionLetters[o])
+              .join(' ve ');
           return (
             e.copyWith(
               choiceQuestions: [
                 for (final q in e.choiceQuestions)
-                  q.number == n ? q.copyWith(correctOptions: {opt}) : q,
+                  q.number == n ? q.copyWith(correctOptions: opts) : q,
               ],
             ),
-            '$n. sorunun cevabı ${optionLetters[opt]} yapıldı.',
+            opts.length > 1
+                ? '$n. sorunun doğru cevapları $letters yapıldı.'
+                : '$n. sorunun cevabı $letters yapıldı.',
           );
         }
       }
