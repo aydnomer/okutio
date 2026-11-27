@@ -137,6 +137,7 @@ class ClassReport {
           fmtNum(scores[i].total),
         ],
     ];
+    final stats = questionStats();
     final details = [
       if (exam.subject.isNotEmpty) exam.subject,
       if (exam.classGroup.isNotEmpty) exam.classGroup,
@@ -191,6 +192,35 @@ class ClassReport {
             },
             border: pw.TableBorder.all(color: PdfColors.grey400, width: 0.5),
           ),
+          if (stats.isNotEmpty) ...[
+            pw.SizedBox(height: 18),
+            pw.Text(
+              'Soru bazında sonuçlar',
+              style: pw.TextStyle(font: fonts.bold, fontSize: 12),
+            ),
+            pw.SizedBox(height: 6),
+            pw.TableHelper.fromTextArray(
+              headers: ['Soru', 'Doğru', 'Yanlış', 'Boş', 'Doğru oranı'],
+              data: [
+                for (final q in stats)
+                  [
+                    '${q.number}',
+                    '${q.correct}',
+                    '${q.wrong}',
+                    '${q.blank}',
+                    '%${(q.correctRate * 100).round()}',
+                  ],
+              ],
+              headerStyle: bold,
+              cellStyle: base,
+              headerDecoration: const pw.BoxDecoration(
+                color: PdfColors.grey200,
+              ),
+              oddRowDecoration: const pw.BoxDecoration(color: PdfColors.grey50),
+              cellAlignment: pw.Alignment.center,
+              border: pw.TableBorder.all(color: PdfColors.grey400, width: 0.5),
+            ),
+          ],
         ],
       ),
     );
