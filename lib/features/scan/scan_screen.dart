@@ -316,6 +316,10 @@ class _Tips extends StatelessWidget {
         'Kâğıt yan ya da ters olabilir, fark etmez.',
       ),
       (Icons.layers_clear_rounded, 'Kâğıdı düz bir yere koyun, katlı olmasın.'),
+      (
+        Icons.auto_fix_off_rounded,
+        'İyi silinmemiş işaretler çift işaret sayılabilir; size gösterilir.',
+      ),
     ];
     return Card(
       margin: EdgeInsets.zero,
