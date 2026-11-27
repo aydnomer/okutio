@@ -97,7 +97,7 @@ class _MarksPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final k = size.width / area.width;
     final r = (FormLayout.bubbleRadius + 0.9) * k;
-    final stroke = _max(0.8 * k, 2);
+    final stroke = _max(1.1 * k, 2.5);
     Offset at(Bubble b) =>
         Offset((b.cx - area.left) * k, (b.cy - area.top) * k);
 
