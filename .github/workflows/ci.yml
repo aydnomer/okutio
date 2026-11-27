@@ -44,7 +44,7 @@ jobs:
           --dart-define=AI_GRADER_KEY=${{ vars.AI_GRADER_KEY }}
 
       - name: Pages için yükle
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v3
         with:
           path: build/web
@@ -57,7 +57,7 @@ jobs:
     # Settings > Secrets and variables > Actions > Variables kısmına
     # PAGES_ENABLED = true ekleyin.
     if: >-
-      github.event_name == 'push' && github.ref == 'refs/heads/main' &&
+      github.event_name != 'pull_request' && github.ref == 'refs/heads/main' &&
       vars.PAGES_ENABLED == 'true'
     runs-on: ubuntu-latest
     permissions:
