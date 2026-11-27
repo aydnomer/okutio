@@ -31,7 +31,7 @@ Tek Flutter kod tabanından **Android, iOS ve web** sürümü çıkar.
 | Boş ve çift işaret etiketleri, çift işaret uyarısı | Hazır |
 | Sesli komut (Türkçe; iptal, kurallar, cevap anahtarı) | Hazır, testli |
 | Açık uçlu için yapay zekâ önerisi (öğretmen onaylı) | Hazır, sunucu kurulumu gerekir |
-| e-Okul Excel çıktısı | Planlandı |
+| e-Okul Excel çıktısı | Sıradaki iş |
 
 ## Geliştirme
 
