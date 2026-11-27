@@ -50,6 +50,12 @@ class ClassReport {
   double get passRate =>
       count == 0 ? 0 : scores.where((s) => s.total >= 50).length / count;
 
+  /// İptal edilen soruların numaraları.
+  List<int> get cancelledNumbers => [
+    for (final q in exam.choiceQuestions)
+      if (q.cancelled) q.number,
+  ];
+
   int get pendingReview =>
       sheets.where((s) => !s.reviewed && s.issues(exam).isNotEmpty).length;
 
@@ -155,6 +161,12 @@ class ClassReport {
               'en yüksek ${fmtNum(highest)} · en düşük ${fmtNum(lowest)}',
               style: bold,
             ),
+            if (cancelledNumbers.isNotEmpty)
+              pw.Text(
+                'İptal edilen sorular: ${cancelledNumbers.join(', ')} '
+                '(${exam.rules.cancelPolicy.label.toLowerCase()})',
+                style: base,
+              ),
             pw.SizedBox(height: 10),
           ],
         ),
